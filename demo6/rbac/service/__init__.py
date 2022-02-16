@@ -1,0 +1,8 @@
+# coding=gbk
+"""
+@Project £ºdemo6 
+@File    £º__init__.py
+@Author  £ºDang FuLin
+@Version £º1.0
+@Date    £º2022/2/15 20:03 
+"""
