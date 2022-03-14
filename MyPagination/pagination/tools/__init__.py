@@ -1,0 +1,8 @@
+# coding=gbk
+"""
+@Project £ºMyPagination 
+@File    £º__init__.py
+@Author  £ºDang FuLin
+@Version £º1.0
+@Date    £º2022/3/12 20:38 
+"""
