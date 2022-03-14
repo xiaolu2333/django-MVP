@@ -41,3 +41,24 @@ class StudentList(ListView):
             page_range = context['paginator'].get_elided_page_range(number=self.page_number, on_each_side=2)
             context['page_range'] = page_range  # 添加额外的键值对，传到模板中
         return context
+
+
+# from pure_pagination import Paginator, PageNotAnInteger
+# 使用Django-pure-pagination插件
+# def test_dpp(request):
+#     school_list = SchoolInfo.objects.all()
+#     paginator = Paginator(school_list, 5, request=request)
+#     try:
+#         page_number = request.GET.get('page', 1)
+#     except PageNotAnInteger:
+#         page_number = 1
+#     page_obj = paginator.page(page_number)
+#     return render(request, 'list.html', {'page_obj': page_obj})
+
+
+# 使用Waypoints滚动分页
+# class StudentList(ListView):
+#     model = StudentInfo
+#     template_name = 'list.html'
+#     context_object_name = 'students'
+#     paginate_by = 25

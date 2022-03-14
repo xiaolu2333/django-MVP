@@ -19,4 +19,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('schools/', school_list, name='school-list'),
     path('students/', StudentList.as_view(), name='student-list'),
+    # path('', test_dpp),   #使用Django-pure-pagination插件
 ]
