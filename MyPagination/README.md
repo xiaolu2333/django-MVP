@@ -109,7 +109,11 @@
 2，对页码进行合理的切割，用法比较固定。
 
 # 二，后端实现
-基本的分页功能由django自带的分页组件实现，详见[在视图函数中使用 Paginator](https://docs.djangoproject.com/zh-hans/4.0/topics/pagination/#using-paginator-in-a-view-function) ，模板文件用[这个](https://docs.djangoproject.com/zh-hans/4.0/topics/pagination/#:~:text=%E7%9A%84%E9%93%BE%E6%8E%A5%EF%BC%8C-,%E5%A6%82%E4%B8%8B%E6%89%80%E7%A4%BA,-%EF%BC%9A) 。
+
+基本的分页功能由django自带的分页组件实现。
+
+## （一）FBV
+详见[在视图函数中使用 Paginator](https://docs.djangoproject.com/zh-hans/4.0/topics/pagination/#using-paginator-in-a-view-function) ，模板文件用[这个](https://docs.djangoproject.com/zh-hans/4.0/topics/pagination/#:~:text=%E7%9A%84%E9%93%BE%E6%8E%A5%EF%BC%8C-,%E5%A6%82%E4%B8%8B%E6%89%80%E7%A4%BA,-%EF%BC%9A) 。
 
 1，创建分页器实例。
 
@@ -155,3 +159,31 @@
         return redirect(to="/schools/?page=1", permanent=True)
 ...
 ```
+
+## （二）CBV
+由于已经结合 FBV 实现了模板，所以关键就是使用 CBV 提供 page_obj 与 page_range 作为上下文。
+
+CBV 选用 ListView 来渲染数据列表。
+
+实际上 page_obj 由 get_context_data 提供到上下文中，所以只需要重写这个方法来额外添加 page_range 就行：
+```python
+class StudentList(ListView):
+    model = StudentInfo
+    template_name = 'list.html'
+    object_list = StudentInfo.objects.all()
+    paginate_by = 25
+
+    def get_context_data(self, **kwargs):
+        context = super(StudentList, self).get_context_data(**kwargs)
+        page = self.kwargs.get(self.page_kwarg) or self.request.GET.get(self.page_kwarg) or 1
+        try:
+            self.page_number = int(page)
+        except ValueError:
+            self.page_number = 1    # 重定向
+        finally:
+            page_range = context['paginator'].get_elided_page_range(number=self.page_number, on_each_side=2)
+            context['page_range'] = page_range  # 添加额外的键值对，传到模板中
+        return context
+```
+
+基于配置思想的 CBV 确实比较方便，但要熟悉源码，才能对抽象出去的逻辑进行自定义。 
