@@ -1,0 +1,17 @@
+# coding=gbk
+"""
+@Project £ºMyLogin 
+@File    £ºurls.py
+@Author  £ºDang FuLin
+@Version £º1.0
+@Date    £º2022/2/12 19:35 
+"""
+from django.urls import path
+from loginhub.views import indexView, loginView, registerView, logoutView
+
+urlpatterns = [
+    path('', indexView, name='index'),
+    path('register/', registerView, name='register'),
+    path('login/', loginView, name='login'),
+    path('logout/', logoutView, name='logout'),
+]

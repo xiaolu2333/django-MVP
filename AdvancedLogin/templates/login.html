@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <title>用户登录</title>
+    <link rel="stylesheet" href="https://unpkg.com/mobi.css/dist/mobi.min.css">
+</head>
+<body>
+<div class="flex-center">
+    <div class="container">
+        <div class="flex-center">
+            <div class="unit-1-2 unit-1-on-mobile">
+                <h1>用户登录</h1>
+                <form class="form" action="" method="post">
+                    {% csrf_token %}
+                    <div>用户名:{{ login_form.username }}</div>
+                    <div>密 码:{{ login_form.password }}</div>
+                    <button type="submit" class="btn btn-primary btn-block">登 录</button>
+                </form>
+                <div>还没有账号？<a href="{% url 'loginhub:register' %}">注册一个</a></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
