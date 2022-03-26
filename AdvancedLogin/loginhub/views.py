@@ -1,25 +1,33 @@
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from django.contrib.auth import hashers, authenticate, login, logout
 from django.urls import reverse
+from rest_framework.decorators import authentication_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from loginhub.forms import LoginForm, RegisterForm
 from loginhub.models import MyUser
-from loginhub.utils.cookie import set_cookies, delete_cookies
-from loginhub.utils.decorators import session_login_required
-from loginhub.utils.session import set_sessions
+
+class IndexView(APIView):
+    # 局部认证的配置
+    # authentication_classes = [JSONWebTokenAuthentication]
+    permission_classes = [AllowAny]
+    def get(self, request):
+        login_flag = False
+        print(request.user)
+        if request.user.is_authenticated:
+            login_flag = True
+        return render(request,
+                      'index.html',
+                      {'login_flag': login_flag})
 
 
-@session_login_required(redirect_url_name='login')
-def indexView(request):
-    login_flag = False
-    if request.user.is_authenticated:
-        login_flag = True
-    return render(request,
-                  'index.html',
-                  {'login_flag': login_flag})
-
+# 避免认证
+@authentication_classes(())
 # 使用表单实现用户登录
 def loginView(request):
     if request.method == 'POST':
@@ -29,28 +37,23 @@ def loginView(request):
             password = login_form.cleaned_data.get("password")
             user = authenticate(request, username=username, password=password)  # 身份认证
             if user:
-                response = redirect(reverse("loginhub:index"))
-                sessions = {
-                    'is_login': True,
-                    'username': username,
-                }
-                # set cookie
-                set_sessions(request=request, mapping=sessions)
                 # 登录
                 login(request, user)
-                return response
+                return redirect(reverse("loginhub:index"))
     login_form = LoginForm()
     return render(request,
                   'login.html',
                   {'login_form': login_form})
 
+# 避免认证
+@authentication_classes(())
 def logoutView(request):
-    response = redirect(reverse("loginhub:index"))
     logout(request)
-    # 清空 session
-    request.session.clear()
-    return response
+    return redirect(reverse("loginhub:index"))
 
+
+# 避免认证
+@authentication_classes(())
 # 使用表单实现用户注册
 def registerView(request):
     if request.method == 'POST':
