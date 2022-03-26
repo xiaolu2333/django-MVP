@@ -7,10 +7,11 @@ from django.urls import reverse
 from loginhub.forms import LoginForm, RegisterForm
 from loginhub.models import MyUser
 from loginhub.utils.cookie import set_cookies, delete_cookies
-from loginhub.utils.decorators import login_require
+from loginhub.utils.decorators import session_login_required
+from loginhub.utils.session import set_sessions
 
 
-@login_require(redirect_url_name='login')
+@session_login_required(redirect_url_name='login')
 def indexView(request):
     login_flag = False
     if request.user.is_authenticated:
@@ -22,21 +23,19 @@ def indexView(request):
 # 使用表单实现用户登录
 def loginView(request):
     if request.method == 'POST':
-        # 获取 cookies
-        cookies = request.COOKIES
-        print(cookies)
         login_form = LoginForm(request.POST)
         if login_form.is_valid():
             username = login_form.cleaned_data.get("username")
             password = login_form.cleaned_data.get("password")
             user = authenticate(request, username=username, password=password)  # 身份认证
-            if user is not None:
+            if user:
                 response = redirect(reverse("loginhub:index"))
-                cookies = {
+                sessions = {
+                    'is_login': True,
                     'username': username,
                 }
                 # set cookie
-                set_cookies(response=response, mapping=cookies)
+                set_sessions(request=request, mapping=sessions)
                 # 登录
                 login(request, user)
                 return response
@@ -46,14 +45,10 @@ def loginView(request):
                   {'login_form': login_form})
 
 def logoutView(request):
-    cookies = request.COOKIES
-    print(cookies)
     response = redirect(reverse("loginhub:index"))
     logout(request)
-    # 删除 cookies
-    delete_cookies(response=response, mapping=cookies)
-    # 清空 cookies
-    # request.session.flush()
+    # 清空 session
+    request.session.clear()
     return response
 
 # 使用表单实现用户注册
